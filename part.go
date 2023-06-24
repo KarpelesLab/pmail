@@ -1,8 +1,6 @@
 package sendmail
 
 import (
-	"bytes"
-	"fmt"
 	"io"
 	"strings"
 )
@@ -47,36 +45,6 @@ func (p *Part) IsContainer() bool {
 	return p.IsMultipart() || p.Type == TypeEmail
 }
 
-func (p *Part) GetHeaders(exclude ...string) []byte {
-	// build an exclude map
-	excl := make(map[string]bool)
-	for _, v := range exclude {
-		excl[strings.ToLower(v)] = true
-	}
-
-	buf := &bytes.Buffer{}
-
-	for k, v := range p.Headers {
-		_, skip := excl[strings.ToLower(k)]
-		if skip {
-			continue
-		}
-
-		switch k {
-		case "Subject", "From", "To", "Cc":
-			for _, s := range v {
-				smartEncodeHeader(buf, k, s)
-			}
-		default:
-			for _, s := range v {
-				fmt.Fprintf(buf, "%s: %s\r\n", k, s)
-			}
-		}
-	}
-	return buf.Bytes()
-}
-
-func smartEncodeHeader(buf *bytes.Buffer, k string, v string) {
-	// TODO
-	fmt.Fprintf(buf, "%s: %s\r\n", k, v)
+func (p *Part) IsEmpty() bool {
+	return len(p.Children) == 0 && p.Data == nil
 }

@@ -31,7 +31,26 @@ func New() *Mail {
 	return m
 }
 
-func (m *Mail) SetFrom(from *mail.Address) {
-	m.From = from
-	m.Body.Headers.Set("From", from.String())
+// IsValid returns true if the email is valid and can be sent
+func (m *Mail) IsValid() bool {
+	if m.From == nil {
+		return false
+	}
+	if len(m.To) == 0 {
+		return false
+	}
+	if m.Body.IsEmpty() {
+		return false
+	}
+	return true
+}
+
+// SetTargetHeaders sets the various headers needed for sending the mail based on the values present in Mail
+// This is called automatically when the email is sent and typically doesn't need to be manually called
+func (m *Mail) SetTargetHeaders() {
+	m.Body.Headers.SetAddressList("From", []*mail.Address{m.From})
+	m.Body.Headers.SetAddressList("Reply-To", m.ReplyTo)
+	m.Body.Headers.SetAddressList("To", m.To)
+	m.Body.Headers.SetAddressList("Cc", m.Cc)
+	m.Body.Headers.SetAddressList("Bcc", m.Bcc) // we set Bcc because some email sending methods (such as sendmail) will require it
 }
