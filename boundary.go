@@ -1,4 +1,4 @@
-package sendmail
+package pmail
 
 import (
 	"crypto/rand"

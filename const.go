@@ -1,4 +1,4 @@
-package sendmail
+package pmail
 
 const (
 	Mixed       = "multipart/mixed"       // when adding attachments

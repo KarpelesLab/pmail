@@ -1,4 +1,4 @@
-package sendmail
+package pmail
 
 import (
 	"net/mail"
