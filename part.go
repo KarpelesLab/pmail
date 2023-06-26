@@ -6,6 +6,8 @@ import (
 	"io"
 	"mime/quotedprintable"
 	"strings"
+
+	"github.com/KarpelesLab/rndpass"
 )
 
 type Part struct {
@@ -23,7 +25,7 @@ func NewPart(typ string) *Part {
 		Headers: make(Header),
 	}
 	if strings.HasPrefix(typ, "multipart/") {
-		p.Boundary = randomBoundary()
+		p.Boundary = rndpass.Code(24, rndpass.RangeFull)
 		p.Encoding = 0
 		p.Headers.Set("Content-Transfer-Encoding", "7bit")
 		p.Headers.Set("Content-Type", p.Type+"; boundary="+p.Boundary)

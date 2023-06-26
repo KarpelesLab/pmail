@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/KarpelesLab/rndpass"
 )
 
 type Mail struct {
@@ -171,7 +173,7 @@ func (m *Mail) SetTargetHeaders() {
 				host = h
 			}
 		}
-		m.MessageId = randomBoundary() + "@" + host
+		m.MessageId = rndpass.Code(32, rndpass.RangeFull) + "@" + host
 	}
 	m.Body.Headers.Set("Message-Id", "<"+m.MessageId+">")
 }
