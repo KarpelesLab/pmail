@@ -17,7 +17,7 @@ func TestTextMail(t *testing.T) {
 	m.MessageId = "test1@localhost"
 	m.AddTo("bob@example.com", "Bob Test")
 	m.SetSubject("Hello Bob")
-	m.SetBodyText("Hello Bob,\r\n\r\nCan you look at this?")
+	m.SetBodyText("Hello Bob,\n\nCan you look at this?")
 
 	buf := &bytes.Buffer{}
 	m.WriteTo(buf)

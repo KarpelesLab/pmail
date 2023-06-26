@@ -99,6 +99,10 @@ func (m *Mail) SetBodyHelper(data []byte, typ string) error {
 		return errors.New("cannot use body helper without an alternative content email")
 	}
 
+	if strings.HasPrefix(typ, "text/") {
+		data = fixcrlf(data)
+	}
+
 	c := p.FindType(typ, false)
 	if c != nil {
 		// already have a part of this type, just replace the body
