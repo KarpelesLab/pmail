@@ -13,7 +13,7 @@ func TestTextMail(t *testing.T) {
 	// generate an email
 	m := pmail.New()
 	m.From = &mail.Address{Address: "test@example.com", Name: "Test"}
-	m.SetDate(time.Unix(1687756384, 0))
+	m.SetDate(time.Unix(1687756384, 0).UTC())
 	m.MessageId = "test1@localhost"
 	m.AddTo("bob@example.com", "Bob Test")
 	m.SetSubject("Hello Bob")
@@ -24,7 +24,7 @@ func TestTextMail(t *testing.T) {
 
 	expect := []byte(`Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain
-Date: Mon, 26 Jun 2023 14:13:04 JST
+Date: Mon, 26 Jun 2023 05:13:04 UTC
 From: "Test" <test@example.com>
 Message-Id: <test1@localhost>
 Mime-Version: 1.0
@@ -48,7 +48,7 @@ Can you look at this?`)
 func TestAltEmail(t *testing.T) {
 	m := pmail.New()
 	m.SetFrom("test@example.com", "Test")
-	m.SetDate(time.Unix(1687756384, 0))
+	m.SetDate(time.Unix(1687756384, 0).UTC())
 	m.MessageId = "test2@localhost"
 	m.AddTo("bob@example.com", "Bob Test")
 	m.SetSubject("Hello Bob")
@@ -62,7 +62,7 @@ func TestAltEmail(t *testing.T) {
 
 	expect := []byte(`Content-Transfer-Encoding: 7bit
 Content-Type: multipart/alternative; boundary=test123456
-Date: Mon, 26 Jun 2023 14:13:04 JST
+Date: Mon, 26 Jun 2023 05:13:04 UTC
 From: "Test" <test@example.com>
 Message-Id: <test2@localhost>
 Mime-Version: 1.0
