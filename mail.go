@@ -30,12 +30,6 @@ func New() *Mail {
 	m.Body.Append(mixed)
 	mixed.Append(NewPart(Alternative))
 
-	host := "localhost"
-	if h, err := os.Hostname(); err == nil {
-		host = h
-	}
-	m.MessageId = randomBoundary() + "@" + host
-	m.Body.Headers.Set("Message-Id", "<"+m.MessageId+">")
 	m.Body.Headers.Set("Date", time.Now().Format(time.RFC1123)) // RFC 5322 compatible, it seems
 	return m
 }
@@ -158,5 +152,22 @@ func (m *Mail) SetTargetHeaders() {
 	} else {
 		m.Body.Headers.Del("Bcc")
 	}
-	m.Body.Headers.Set("Message-Id", "<"+m.MessageId+">") // just in case it was modified
+
+	if m.MessageId == "" {
+		// generate messageId (from from?)
+		host := "localhost"
+		if m.From != nil {
+			pos := strings.LastIndexByte(m.From.Address, '@')
+			if pos != -1 {
+				host = m.From.Address[pos+1:]
+			}
+		}
+		if host == "localhost" {
+			if h, err := os.Hostname(); err == nil {
+				host = h
+			}
+		}
+		m.MessageId = randomBoundary() + "@" + host
+	}
+	m.Body.Headers.Set("Message-Id", "<"+m.MessageId+">")
 }
