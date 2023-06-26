@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/mail"
 	"net/textproto"
+	"sort"
 	"time"
 )
 
@@ -29,6 +30,10 @@ func (h Header) Get(key string) string {
 		return ""
 	}
 	return v[0]
+}
+
+func (h Header) Del(key string) {
+	delete(h, textproto.CanonicalMIMEHeaderKey(key))
 }
 
 func (h Header) Date() (time.Time, error) {
@@ -71,11 +76,19 @@ func (h Header) Encode(exclude ...string) []byte {
 
 	buf := &bytes.Buffer{}
 
-	for k, v := range h {
+	// sort keys to ensure we always produce the same output
+	keys := make([]string, 0, len(h))
+	for k := range h {
 		_, skip := excl[k] // we assume k is already canonical
 		if skip {
 			continue
 		}
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		v := h[k]
 
 		switch k {
 		case "Subject", "From", "To", "Cc":
@@ -94,4 +107,16 @@ func (h Header) Encode(exclude ...string) []byte {
 func smartEncodeHeader(buf *bytes.Buffer, k string, v string) {
 	// TODO
 	fmt.Fprintf(buf, "%s: %s\r\n", k, v)
+}
+
+// Merge will duplicate the header object and add another object
+func (h Header) Merge(h2 Header) Header {
+	n := make(Header)
+	for k, v := range h {
+		n[k] = v
+	}
+	for k, v := range h2 {
+		n[k] = v
+	}
+	return n
 }

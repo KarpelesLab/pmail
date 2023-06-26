@@ -43,15 +43,11 @@ func NewPart(typ string) *Part {
 }
 
 func (p *Part) IsMultipart() bool {
-	return strings.HasPrefix(p.Headers.Get("Content-Type"), "multipart/")
+	return strings.HasPrefix(p.Type, "multipart/")
 }
 
 func (p *Part) IsEmail() bool {
 	return p.Type == TypeEmail
-}
-
-func (p *Part) IsMultipartEmail() bool {
-	return p.IsEmail() && p.IsMultipart()
 }
 
 func (p *Part) IsContainer() bool {
@@ -59,7 +55,14 @@ func (p *Part) IsContainer() bool {
 }
 
 func (p *Part) IsEmpty() bool {
+	if len(p.Children) == 1 {
+		return p.Children[0].IsEmpty()
+	}
 	return len(p.Children) == 0 && p.Data == nil
+}
+
+func (p *Part) Append(c *Part) {
+	p.Children = append(p.Children, c)
 }
 
 // WriteTo writes the part to the given output
@@ -67,12 +70,23 @@ func (p *Part) WriteTo(w io.Writer) (int64, error) {
 	wc := &writeCounter{W: w}
 	w = wc
 
+	hdrs := p.Headers
+	isEmail := p.IsEmail()
+
+	for len(p.Children) == 1 {
+		// if only 1 child, move down and merge headers
+		p = p.Children[0]
+		hdrs = hdrs.Merge(p.Headers)
+	}
+
 	// Write headers
-	w.Write(p.Headers.Encode())
+	w.Write(hdrs.Encode())
 	w.Write([]byte{'\r', '\n'})
 
+	isMultipart := strings.HasPrefix(hdrs.Get("Content-Type"), "multipart/")
+
 	// If this is a multipart email, write the "this is a mime message" line
-	if p.IsMultipartEmail() {
+	if isEmail && isMultipart {
 		w.Write([]byte("This is a message in Mime Format.  If you see this, your mail reader does not support this format.\r\n\r\n"))
 	}
 
@@ -111,4 +125,25 @@ func (p *Part) convertEncoder(w io.Writer) io.WriteCloser {
 	default:
 		return nil
 	}
+}
+
+func (p *Part) FindType(typ string, recurse bool) *Part {
+	// search direct children
+	for _, c := range p.Children {
+		if c.Type == typ {
+			return c
+		}
+	}
+	if !recurse {
+		return nil
+	}
+	// search containers children
+	for _, c := range p.Children {
+		if c.IsContainer() {
+			if f := c.FindType(typ, true); f != nil {
+				return f
+			}
+		}
+	}
+	return nil
 }
