@@ -79,6 +79,11 @@ func (p *Part) WriteTo(w io.Writer) (int64, error) {
 		hdrs = hdrs.Merge(p.Headers)
 	}
 
+	if len(p.Children) > 0 {
+		// enforce content type & boundary
+		hdrs.Set("Content-Type", p.Type+"; boundary="+p.Boundary)
+	}
+
 	// Write headers
 	w.Write(hdrs.Encode())
 	w.Write([]byte{'\r', '\n'})
