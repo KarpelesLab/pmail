@@ -13,11 +13,10 @@ import (
 // AsSGMailV3 returns a sendgrid SGMailV3 object for this email
 func (m *Mail) AsSGMailV3() *sgmail.SGMailV3 {
 	pers := &sgmail.Personalization{
-		To:      makeSGEmails(m.To),
-		From:    makeSGEmail(m.From),
-		CC:      makeSGEmails(m.Cc),
-		BCC:     makeSGEmails(m.Bcc),
-		Headers: convertSGHeaders(m.Body.Headers),
+		To:   makeSGEmails(m.To),
+		From: makeSGEmail(m.From),
+		CC:   makeSGEmails(m.Cc),
+		BCC:  makeSGEmails(m.Bcc),
 	}
 
 	// From ReplyTo[] To[] Cc[] Bcc[] Body MessageId

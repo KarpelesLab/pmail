@@ -40,6 +40,10 @@ Can you look at this?`)
 		t.Errorf("mail not as expected.\nexpected:\n%s\noutput:\n%s", expect, buf.Bytes())
 	}
 
+	//enc := json.NewEncoder(os.Stderr)
+	//enc.SetIndent("  ", "")
+	//enc.Encode(m.AsSGMailV3())
+
 	//log.Printf("Email:\n%s", buf.Bytes())
 	//log.Printf("hash = %x", sha256.Sum256(buf.Bytes()))
 
