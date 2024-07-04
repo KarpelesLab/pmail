@@ -1,2 +1,4 @@
 github.com/KarpelesLab/rndpass v1.0.0 h1:hRuqjVs5cdJm2NeLtIC7Y9kD6WZp5SWD0z1GCoND53Q=
 github.com/KarpelesLab/rndpass v1.0.0/go.mod h1:TCP8DGpF8gTSd5KnmbgK9OrAyGu3sk7kLQbSVPQTEXQ=
+github.com/sendgrid/sendgrid-go v3.14.0+incompatible h1:KDSasSTktAqMJCYClHVE94Fcif2i7P7wzISv1sU6DUA=
+github.com/sendgrid/sendgrid-go v3.14.0+incompatible/go.mod h1:QRQt+LX/NmgVEvmdRw0VT/QgUn499+iza2FnDca9fg8=
