@@ -13,7 +13,8 @@ import (
 type Part struct {
 	Type     string  // text/plain, etc
 	Children []*Part // only if multipart/* type
-	Data     io.Reader
+	Data     io.ReadCloser
+	GetBody  func() (io.ReadCloser, error)
 	Headers  Header
 	Boundary string
 	Encoding byte
@@ -103,7 +104,22 @@ func (p *Part) WriteTo(w io.Writer) (int64, error) {
 	}
 	if len(p.Children) == 0 {
 		// simply copy
-		_, err := io.Copy(w, p.Data)
+		if p.Data == nil {
+			if p.GetBody != nil {
+				var err error
+				p.Data, err = p.GetBody()
+				if err != nil {
+					return wc.C, err
+				}
+			} else {
+				return wc.C, ErrPartHasNoBody
+			}
+		}
+		// take p.Data, make it nil instead so we don't use it twice (and GetBody gets called next time, if there is a next time)
+		fp := p.Data
+		p.Data = nil
+		defer fp.Close()
+		_, err := io.Copy(w, fp)
 		return wc.C, err
 	}
 

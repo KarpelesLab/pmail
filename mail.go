@@ -108,13 +108,15 @@ func (m *Mail) SetBodyHelper(data []byte, typ string) error {
 	c := p.FindType(typ, false)
 	if c != nil {
 		// already have a part of this type, just replace the body
-		c.Data = bytes.NewReader(data)
+		c.Data = io.NopCloser(bytes.NewReader(data))
+		c.GetBody = func() (io.ReadCloser, error) { return io.NopCloser(bytes.NewReader(data)), nil }
 		return nil
 	}
 
 	// create part
 	c = NewPart(typ)
-	c.Data = bytes.NewReader(data)
+	c.Data = io.NopCloser(bytes.NewReader(data))
+	c.GetBody = func() (io.ReadCloser, error) { return io.NopCloser(bytes.NewReader(data)), nil }
 	p.Append(c)
 
 	return nil
