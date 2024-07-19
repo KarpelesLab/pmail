@@ -45,9 +45,9 @@ func scanSGPart(res *sgmail.SGMailV3, part *Part) error {
 			scanSGPart(res, sub)
 		}
 		return nil
-	} else if part.Data != nil {
+	} else if part.Data != nil || part.GetBody != nil {
 		// attachment
-		data, err := io.ReadAll(part.Data)
+		data, err := part.readBody()
 		if err != nil {
 			return err
 		}

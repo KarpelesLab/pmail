@@ -138,6 +138,25 @@ func (p *Part) WriteTo(w io.Writer) (int64, error) {
 	return wc.C, nil
 }
 
+func (p *Part) readBody() ([]byte, error) {
+	if p.Data == nil {
+		if p.GetBody != nil {
+			var err error
+			p.Data, err = p.GetBody()
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, ErrPartHasNoBody
+		}
+	}
+	// take p.Data, make it nil instead so we don't use it twice (and GetBody gets called next time, if there is a next time)
+	fp := p.Data
+	p.Data = nil
+	defer fp.Close()
+	return io.ReadAll(fp)
+}
+
 func (p *Part) convertEncoder(w io.Writer) io.WriteCloser {
 	switch p.Encoding {
 	case 'q':
