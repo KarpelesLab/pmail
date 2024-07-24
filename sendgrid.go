@@ -3,7 +3,6 @@ package pmail
 import (
 	"encoding/base64"
 	"errors"
-	"io"
 	"net/mail"
 	"strings"
 
@@ -34,7 +33,7 @@ func (m *Mail) AsSGMailV3() *sgmail.SGMailV3 {
 
 func scanSGPart(res *sgmail.SGMailV3, part *Part) error {
 	if strings.HasPrefix(part.Type, "text/") {
-		data, err := io.ReadAll(part.Data)
+		data, err := part.readBody()
 		if err != nil {
 			return err
 		}
