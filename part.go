@@ -61,6 +61,9 @@ func (p *Part) IsEmpty() bool {
 	if len(p.Children) == 1 {
 		return p.Children[0].IsEmpty()
 	}
+	if p.Data == nil && p.GetBody != nil {
+		p.Data, _ = p.GetBody()
+	}
 	return len(p.Children) == 0 && p.Data == nil
 }
 
